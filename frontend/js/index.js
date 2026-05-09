@@ -3,7 +3,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
-*/
+ */
+
+var DEBUG = false; // SET TO FALSE TO REMOVE ALL DEBUG LOGS
+
+var DEFAULT_SERVER_URL = "https://11.ein.itsby.design/dodmcdund/jellyfin/";
+
+var debugPanel;
+function debugLog(msg) {
+    if (!DEBUG) return;
+    console.log("[DEBUG]", msg);
+    if (!debugPanel) {
+        debugPanel = document.createElement('div');
+        debugPanel.id = 'debug-panel';
+        debugPanel.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:14px;padding:10px;z-index:999999;max-height:200px;overflow:auto;';
+        document.body.appendChild(debugPanel);
+    }
+    var entry = document.createElement('div');
+    entry.style.borderBottom = '1px solid #333';
+    entry.textContent = new Date().toISOString().split('T')[1].slice(0,8) + ' ' + msg;
+    debugPanel.appendChild(entry);
+    debugPanel.scrollTop = debugPanel.scrollHeight;
+}
 
 var curr_req = false;
 var server_info = false;
@@ -164,6 +185,8 @@ function Init() {
 
     navigationInit();
 
+    document.querySelector('#baseurl').value = DEFAULT_SERVER_URL;
+
     if (storage.exists('connected_servers')) {
         connected_servers = storage.get('connected_servers')
         var first_server = connected_servers[Object.keys(connected_servers)[0]]
@@ -256,7 +279,7 @@ function getServerInfo(baseurl, auto_connect) {
         },
         error: handleFailure,
         abort: handleAbort,
-        timeout: 5000
+        timeout: 30000
     });
 }
 
@@ -268,7 +291,7 @@ function getManifest(baseurl) {
         },
         error: handleFailure,
         abort: handleAbort,
-        timeout: 5000
+        timeout: 30000
     });
 }
 
@@ -325,11 +348,7 @@ function lruStrategy(old_items,max_items,new_item) {
 }
 
 function handleSuccessManifest(data, baseurl) {
-    if(data.start_url.includes("/web")){
-        var hosturl = normalizeUrl(baseurl + "/" + data.start_url);
-    } else {
-        var hosturl = normalizeUrl(baseurl + "/web/" + data.start_url);
-    }
+    var hosturl = normalizeUrl(baseurl + "/web/");
 
     curr_req = false;
 
@@ -454,8 +473,6 @@ function injectStyleText(document, text) {
 
 function handoff(url, bundle) {
     console.log("Handoff called with: ", url)
-    //hideConnecting();
-
     stopDiscovery();
     document.querySelector('.container').style.display = 'none';
 
@@ -493,7 +510,6 @@ function handoff(url, bundle) {
                     contentDocument.addEventListener('DOMContentLoaded', onLoad);
                     break;
 
-                // In the case of "loading" is not caught
                 case 'interactive':
                     onLoad();
                     break;
@@ -503,11 +519,17 @@ function handoff(url, bundle) {
 
     contentWindow.addEventListener('unload', onUnload);
 
-    // In the case of "loading" and "interactive" are not caught
     contentFrame.addEventListener('load', onLoad);
 
     contentFrame.style.display = '';
-    contentFrame.src = url;
+
+    debugLog("Opening URL in system browser: " + url);
+    if (window.PalmSystem && window.PalmSystem.openURL) {
+        window.PalmSystem.openURL(url);
+    } else {
+        debugLog("PalmSystem.openURL not available, falling back to window.open");
+        window.open(url, '_blank');
+    }
 }
 
 window.addEventListener('message', function (msg) {
@@ -525,6 +547,14 @@ window.addEventListener('message', function (msg) {
             break;
         case 'AppHost.exit':
             webOS.platformBack();
+            break;
+        case 'openUrl':
+            if (window.PalmSystem && window.PalmSystem.openURL) {
+                debugLog("Opening URL in system browser: " + msg.data.url);
+                window.PalmSystem.openURL(msg.data.url);
+            } else {
+                debugLog("PalmSystem.openURL not available");
+            }
             break;
     }
 });

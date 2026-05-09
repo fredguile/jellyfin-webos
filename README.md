@@ -2,6 +2,8 @@
 # Jellyfin for webOS
 This is a small wrapper around the web interface provided by the server (https://github.com/jellyfin/jellyfin-web) so most of the development happens there.
 
+This fork specifically fixes compatibility with WebOS 5.x+ by opening Jellyfin in the native browser instead of an embedded webview.
+
 
 ## Download
 
@@ -24,7 +26,7 @@ The general development workflow looks like this:
 
 - Prepare a build environment of your choice (see below)
 - Compile an IPK either with the IDE or with ares-package
-- Test the app on the emulator or ares-server or install it on your tv by following http://webostv.developer.lge.com/develop/app-test/
+- Test the app on the emulator or ares-server or install it on your tv by following https://webostv.developer.lge.com/develop/tools/
 
 There are three ways to create the required build environment:
 
@@ -34,7 +36,7 @@ There are three ways to create the required build environment:
 
 ### Full WebOS SDK Installation
 
-- Install the WebOS SDK from http://webostv.developer.lge.com/sdk/installation/
+- Install the WebOS SDK from https://webostv.developer.lge.com/develop/tools/sdk-introduction
 
 ### Docker
 
@@ -65,11 +67,11 @@ ares-package --no-minify services frontend
 
 ## Usage
 Fill in your hostname, port, and schema and click connect. The app will check for a server by grabbing the manifest and the public serverinfo.
-Afterwards, the app hands off control to the hosted webUI.
+Afterwards, the app opens Jellyfin in your TV's native browser.
 
 
 ## Testing
-Testing on a TV requires [registering a LG developer account](https://webostv.developer.lge.com/develop/app-test/preparing-account/) and [setting up the devmode app](https://webostv.developer.lge.com/develop/app-test/using-devmode-app/).
+Testing on a TV requires [registering a LG developer account](https://webostv.developer.lge.com/develop/tools/) and [setting up the devmode app](https://webostv.developer.lge.com/develop/tools/).
 
 Once you have installed the devmode app on your target TV and logged in with your LG developer account, you need to turn on the `Dev Mode Status` and `Key Server`.
 **Make sure** to take a note of the passphrase.
