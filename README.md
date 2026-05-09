@@ -7,7 +7,12 @@ This fork specifically fixes compatibility with WebOS 5.x+ by opening Jellyfin i
 
 ## Download
 
-For all versions:
+**For the official version:** Install from the [LG App Store](https://us.lgappstv.com/main/tvapp/detail?appId=1030579).
+
+**This fork (v1.3.0) is not published to the LG Store.** To install this version:
+- Use Developer Mode to sideload the IPK
+- Or build it yourself using `npm run package`
+
 <p align="center">
 <a href="https://us.lgappstv.com/main/tvapp/detail?appId=1030579"><img alt="Enjoy on LG Smart TV" src="https://repo.jellyfin.org/releases/other/lg-badge/LG_BADGE_greyborders_135x40.png"/></a>
 <br/>
